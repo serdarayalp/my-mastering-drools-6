@@ -47,4 +47,4 @@ This will compile and package your project, look for the Build Success output in
 terminal. After executing this line, you will find the /target directory containing
 a jar file that you can use to execute the previously compiled class using the following line:
 
->  mvn exec:java -D"exec.mainClass"="de.mydomain.drools.App"
+>  mvn exec:java -D"exec.mainClass"="de.mydomain.drools.MainItemCategory"

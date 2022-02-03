@@ -5,7 +5,7 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
-public class App {
+public class MainItemCategory {
 
     public static void main(String[] args) {
 
@@ -14,7 +14,7 @@ public class App {
         System.out.println("Bootstrapping a Rule Engine Session...");
         KieServices kieServices = KieServices.Factory.get();
         KieContainer kieContainer = kieServices.getKieClasspathContainer();
-        KieSession kieSession = kieContainer.newKieSession();
+        KieSession kieSession = kieContainer.newKieSession("itemCategorySession");
 
         Item item = new Item("A", 123.0, 234.0);
         System.out.println("Item Category: " + item.getCategory());

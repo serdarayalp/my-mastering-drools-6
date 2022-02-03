@@ -1,4 +1,4 @@
-package de.mydomain.drools.rules;
+package item_category;
 
 import de.mydomain.drools.model.Item;
 import de.mydomain.drools.model.Item.Category;
