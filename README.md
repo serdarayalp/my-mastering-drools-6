@@ -37,6 +37,13 @@ file, we can define how the rules are grouped together in different KieBases tha
 can be loaded for different purposes. It also allows us to define more fine-grained
 configurations for the rule engine instance that will be created.
 
+Using the concepts of KieBase and KieSession, we can define the granularity of how
+the rules will need to be loaded. A KieBase represents a compiled version of a set of
+assets, and a KieSession represents an instance of the rule engine containing the rules
+in the KieBase. For this reason, it makes sense to have multiple sessions defined with
+different configurations for the same KieBase. In other words, we can use the same
+rules, but have a session configured in a different way for different needs.
+
 # KieSession
 KieSession represents a  running instance of the Rule Engine with a specific configuration and set of  rules.
 It holds the evaluation algorithm used to match the rules against our  domain objects.
