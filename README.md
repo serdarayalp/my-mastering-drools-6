@@ -31,6 +31,12 @@ artifact that contains the algorithm to translate the rules written in different
 (text files, spreadsheets, your own types, and so on) to executable rules. This artifact
 is required only because we are compiling our rules in the project.
 
+# kmodule.xml
+The kmodule.xml file is used to customize the KieModule configurations. In this
+file, we can define how the rules are grouped together in different KieBases that
+can be loaded for different purposes. It also allows us to define more fine-grained
+configurations for the rule engine instance that will be created.
+
 # KieSession
 KieSession represents a  running instance of the Rule Engine with a specific configuration and set of  rules.
 It holds the evaluation algorithm used to match the rules against our  domain objects.
