@@ -1,38 +1,34 @@
 package de.mydomain.drools;
 
-import static org.junit.Assert.*;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
+import de.mydomain.drools.model.Customer;
 import de.mydomain.drools.model.Item;
+import de.mydomain.drools.model.Order;
 import org.drools.core.impl.InternalKnowledgeBase;
 import org.drools.core.impl.KnowledgeBaseFactory;
-import org.drools.core.time.SessionPseudoClock;
+import org.junit.Assert;
 import org.junit.Test;
-import org.kie.api.KieBase;
-import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
 import org.kie.api.builder.Message;
 import org.kie.api.builder.Results;
-import org.kie.api.conf.EventProcessingOption;
-import org.kie.api.definition.KiePackage;
-import org.kie.api.definition.rule.Rule;
+import org.kie.api.command.Command;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.KieSessionConfiguration;
-import org.kie.api.runtime.conf.ClockTypeOption;
+import org.kie.api.runtime.StatelessKieSession;
 import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderError;
-import org.kie.internal.builder.KnowledgeBuilderErrors;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class RuleTest {
 
@@ -84,5 +80,41 @@ public class RuleTest {
                 kieSession.dispose();
             }
         }
+    }
+
+    @Test
+    public void statelessSessionTest() {
+
+        KieServices kieServices = KieServices.Factory.get();
+        KieContainer kieContainer = kieServices.newKieClasspathContainer();
+
+        StatelessKieSession statelessKieSession = kieContainer.newStatelessKieSession("rules.simple.discount.stateless");
+
+        Assert.assertNotNull(statelessKieSession);
+
+        Customer customer = new Customer();
+        customer.setCategory(Customer.Category.SILVER);
+
+        Order order = new Order();
+        order.setCustomer(customer);
+
+        Command newInsertOrder = kieServices.getCommands().newInsert(order, "orderOut");
+        Command newInsertCustomer = kieServices.getCommands().newInsert(customer);
+        Command newFireAllRules = kieServices.getCommands().newFireAllRules("outFired");
+
+        List<Command> commandList = new ArrayList<>();
+
+        commandList.add(newInsertOrder);
+        commandList.add(newInsertCustomer);
+        commandList.add(newFireAllRules);
+
+        ExecutionResults executionResults = statelessKieSession.execute(kieServices.getCommands()
+                .newBatchExecution(commandList));
+
+        order = (Order) executionResults.getValue("orderOut");
+        int fired = (Integer) executionResults.getValue("outFired");
+
+        assertEquals(2, fired);
+        assertEquals(10.0, order.getDiscount().getPercentage(), 0.0);
     }
 }
