@@ -28,6 +28,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class RuleTest {
@@ -116,5 +117,59 @@ public class RuleTest {
 
         assertEquals(2, fired);
         assertEquals(10.0, order.getDiscount().getPercentage(), 0.0);
+    }
+
+    @Test
+    public void loadingRulesFromDependencyParentKieModule() {
+
+        KieServices kieServices = KieServices.Factory.get();
+        KieContainer kieContainer = kieServices.newKieClasspathContainer();
+
+        // verify -> Builds all the KieBase in the KieModule wrapped by this KieContainer and return te Results of this building process
+        Results results = kieContainer.verify();
+        results.getMessages().stream().forEach((message) -> {
+            System.out.println(">> Message ( " + message.getLevel() + " ): " + message.getText());
+        });
+
+        assertFalse(results.hasMessages(Message.Level.ERROR));
+
+        kieContainer.getKieBaseNames().stream().map((kieBase) -> {
+            System.out.println(">> Loading KieBase: " + kieBase);
+            return kieBase;
+        }).forEach((kieBase) -> {
+            kieContainer.getKieSessionNamesInKieBase(kieBase).stream().forEach((kieSession) -> {
+                System.out.println("\t >> Containing KieSession: " + kieSession);
+            });
+        });
+
+        KieSession kieSession = kieContainer.newKieSession("rules.simple.discount.stateful");
+
+        Customer customer = new Customer();
+        customer.setCustomerId(1L);
+        customer.setCategory(Customer.Category.SILVER);
+
+        Order order = new Order();
+        order.setCustomer(customer);
+
+        kieSession.insert(customer);
+        kieSession.insert(order);
+
+        kieSession.fireAllRules();
+
+        assertEquals(10.0, order.getDiscount().getPercentage(), 0.0);
+
+        Customer customerGold = new Customer();
+        customerGold.setCustomerId(2L);
+        customerGold.setCategory(Customer.Category.GOLD);
+
+        Order orderGold = new Order();
+        orderGold.setCustomer(customerGold);
+
+        kieSession.insert(customerGold);
+        kieSession.insert(orderGold);
+
+        kieSession.fireAllRules();
+
+        assertEquals(20.0, orderGold.getDiscount().getPercentage(), 0.0);
     }
 }
