@@ -10,4 +10,9 @@
         <ksession name="rules.simple.discount.stateless" type="stateless"/>
         <ksession name="rules.simple.discount.stateful" type="stateful"/>
     </kbase>
+    <!--
+    <kbase name="rules.discount" default="true" includes="rules_from_other_kbase_from_other_module_1, rules_from_other_kbase_from_other_module_2">
+        <ksession name="rules.discount.all" type="stateful"/>
+    </kbase>
+    -->
 </kmodule>

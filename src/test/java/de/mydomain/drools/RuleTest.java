@@ -11,6 +11,7 @@ import org.kie.api.KieServices;
 import org.kie.api.builder.Message;
 import org.kie.api.builder.Results;
 import org.kie.api.command.Command;
+import org.kie.api.command.KieCommands;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
@@ -99,9 +100,11 @@ public class RuleTest {
         Order order = new Order();
         order.setCustomer(customer);
 
-        Command newInsertOrder = kieServices.getCommands().newInsert(order, "orderOut");
-        Command newInsertCustomer = kieServices.getCommands().newInsert(customer);
-        Command newFireAllRules = kieServices.getCommands().newFireAllRules("outFired");
+        KieCommands commands = kieServices.getCommands();
+
+        Command newInsertOrder = commands.newInsert(order, "orderOut");
+        Command newInsertCustomer = commands.newInsert(customer);
+        Command newFireAllRules = commands.newFireAllRules("outFired");
 
         List<Command> commandList = new ArrayList<>();
 
@@ -109,7 +112,7 @@ public class RuleTest {
         commandList.add(newInsertCustomer);
         commandList.add(newFireAllRules);
 
-        ExecutionResults executionResults = statelessKieSession.execute(kieServices.getCommands()
+        ExecutionResults executionResults = statelessKieSession.execute(commands
                 .newBatchExecution(commandList));
 
         order = (Order) executionResults.getValue("orderOut");
