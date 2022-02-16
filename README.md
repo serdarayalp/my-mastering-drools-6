@@ -48,6 +48,41 @@ rules, but have a session configured in a different way for different needs.
 KieSession represents a  running instance of the Rule Engine with a specific configuration and set of  rules.
 It holds the evaluation algorithm used to match the rules against our  domain objects.
 
+# KieScanner
+Every time our business logic (rules) changes, any KieContainer that referenced it has to be notified. One of the limitations of this approach is that we have to manually notify each of the applications that depend on the modified KieModule. What if there were a way to automatically let out the applications to be notified when a KieModule that they depend on gets updated? Fortunately for us, Drools provides this mechanism out of the box, its name is KieScanner.
+
+```text
+In order to use KieScanner in our application, the org.kie::kie-ci artifact must be added to the application's classpath.
+```
+
+# Rule attributes
+```text
+enabled false
+```
+If the enabled attribute is set to false, the rule will be evaluated, however, it won't  be executed.
+
+```text
+salience 10
+```
+If we want a rule to take precedence, we can set a higher priority to it using the salience rule attribute. The higher the salience, the higher the priority of the rule.
+
+By default, all rules have an implicit salience attribute of 0 and you can assign  positive or negative values to the salience attribute in order to execute them before  or after the rest of the rules. Please take into account that rule attributes will only be  evaluated after the rule conditions have matched with a group of data in the working  memory, therefore, if the rule was not going to be triggered with the existing data, it won't be triggered regardless of how high or low the salience value is set.
+
+```text
+no-loop
+```
+a rule attribute exists to let the engine know that a  specific rule should not re-evaluate itself after it modifies the working memory.
+
+```text
+agenda-group "NAME_OF_GROUP"
+```
+Grouping for rules. When a rule is fired, it can also define the agenda  group that is going to be activated through the implicit global variable called **kcontext**
+
+```text
+...
+then
+    kcontext.getKieRuntime().getAgenda().getAgendaGroup("MAIN").setFocus();
+```
 
 # Starting the program
 

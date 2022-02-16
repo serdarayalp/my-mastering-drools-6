@@ -15,4 +15,7 @@
         <ksession name="rules.discount.all" type="stateful"/>
     </kbase>
     -->
+    <kbase name="rules.attributes">
+        <ksession name="rules.attributes" type="stateful"/>
+    </kbase>
 </kmodule>

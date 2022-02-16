@@ -1,0 +1,60 @@
+package rules.simple.discount;
+
+import de.mydomain.drools.model.Order;
+import de.mydomain.drools.model.Customer;
+import de.mydomain.drools.model.Coupon;
+import de.mydomain.drools.model.Discount;
+import de.mydomain.drools.model.OrderLine;
+import de.mydomain.drools.model.Item;
+
+import de.mydomain.drools.service.ConfigService;
+
+global ConfigService configService;
+
+rule "Classify Item - Mid Range"
+when
+    $i: Item(cost > 200 && cost < 500,category == Category.NA )
+then
+    $i.setCategory(Item.Category.MID_RANGE);
+    update($i);
+end
+
+rule "Classify Item - Mid/High Range (special)"
+enabled true
+no-loop
+salience 10
+when
+    $i: Item( cost > 300 && cost < 400,category == Category.NA  )
+then
+    $i.setCategory(Item.Category.SPECIAL_MIDHIGH_RANGE);
+    update($i);
+end
+
+
+rule "Classify Item - Mid/High Range (special) 2"
+no-loop
+salience ($i.getCost())
+when
+    $i: Item( cost > 300 && cost < 400 )
+then
+    $i.setCategory(Item.Category.LOW_RANGE);
+    update($i);
+end
+
+rule "Promotion: more than 10 pencils get 10% discount"
+agenda-group "promotions"
+when
+    $i: OrderLine($i.item.name == "pencil", quantity > 10)
+then
+    System.out.println("Das ist ein agenda-group-TEST.");
+end
+
+
+rule "Done with promotions. Onward with printing invoice"
+salience -100 //last rule of group to run
+agenda-group "promotions"
+when
+    OrderLine()
+then
+    kcontext.getKieRuntime().getAgenda().getAgendaGroup("MAIN").setFocus();
+end

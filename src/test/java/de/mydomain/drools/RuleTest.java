@@ -27,10 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 public class RuleTest {
 
@@ -123,7 +121,7 @@ public class RuleTest {
     }
 
     @Test
-    public void loadingRulesFromDependencyParentKieModule() {
+    public void statefulSessionTest() {
 
         KieServices kieServices = KieServices.Factory.get();
         KieContainer kieContainer = kieServices.newKieClasspathContainer();
