@@ -4,10 +4,11 @@
 mvn -B archetype:generate -DarchetypeGroupId=org.kie -DarchetypeArtifactId=kie-drools-archetype -DarchetypeVersion=7.64.0.Final -DgroupId=de.mydomain -DartifactId=myfirst-drools-project -Dversion=1.0-SNAPSHOT -Dpackage=de.mydomain.drools
 ```
 
-# pom.xml
+# Some important dependencies
 
 ```txt
 <dependencies>
+    ......
     <dependency>
         <groupId>org.kie</groupId>
         <artifactId>kie-api</artifactId>
@@ -20,6 +21,7 @@ mvn -B archetype:generate -DarchetypeGroupId=org.kie -DarchetypeArtifactId=kie-d
         <groupId>org.drools</groupId>
         <artifactId>drools-compiler</artifactId>
     </dependency>
+    ......
 </dependencies>
 ```
 
@@ -84,15 +86,3 @@ then
     kcontext.getKieRuntime().getAgenda().getAgendaGroup("MAIN").setFocus();
 ```
 
-# Starting the program
-
-You will need to compile the project in order to execute this class and you
-can do this by executing from the terminal or your IDE, as follows:
-
-> mvn clean install
-
-This will compile and package your project, look for the Build Success output in the
-terminal. After executing this line, you will find the /target directory containing
-a jar file that you can use to execute the previously compiled class using the following line:
-
->  mvn exec:java -D"exec.mainClass"="de.mydomain.drools.MainItemCategory"
