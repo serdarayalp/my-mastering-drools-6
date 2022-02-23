@@ -18,4 +18,7 @@
     <kbase name="rules.attributes">
         <ksession name="rules.attributes" type="stateful"/>
     </kbase>
+    <kbase name="discountRules" packages="discountRules">
+        <ksession name="discountRulesSession"/>
+    </kbase>
 </kmodule>

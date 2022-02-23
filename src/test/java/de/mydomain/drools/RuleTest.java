@@ -1,6 +1,7 @@
 package de.mydomain.drools;
 
 import de.mydomain.drools.model.Customer;
+import de.mydomain.drools.model.DroolsOrder;
 import de.mydomain.drools.model.Item;
 import de.mydomain.drools.model.Order;
 import org.drools.core.impl.InternalKnowledgeBase;
@@ -17,6 +18,7 @@ import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.StatelessKieSession;
+import org.kie.api.time.Calendar;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
@@ -172,5 +174,54 @@ public class RuleTest {
         kieSession.fireAllRules();
 
         assertEquals(20.0, orderGold.getDiscount().getPercentage(), 0.0);
+    }
+
+    @Test
+    public void testFindDiscountOfOrder() {
+
+        KieServices kieServices = KieServices.Factory.get();
+        KieContainer kieContainer = kieServices.newKieClasspathContainer();
+
+        // verify -> Builds all the KieBase in the KieModule wrapped by this KieContainer and return te Results of this building process
+        Results results = kieContainer.verify();
+        results.getMessages().stream().forEach((message) -> {
+            System.out.println(">> Message ( " + message.getLevel() + " ): " + message.getText());
+        });
+
+        assertFalse(results.hasMessages(Message.Level.ERROR));
+
+        kieContainer.getKieBaseNames().stream().map((kieBase) -> {
+            System.out.println(">> Loading KieBase: " + kieBase);
+            return kieBase;
+        }).forEach((kieBase) -> {
+            kieContainer.getKieSessionNamesInKieBase(kieBase).stream().forEach((kieSession) -> {
+                System.out.println("\t >> Containing KieSession: " + kieSession);
+            });
+        });
+
+        KieSession kieSession = kieContainer.newKieSession("discountRulesSession");
+
+        // Calendar weekDayCal = QuartzHelper.quartzCalendarAdapter(org.quartz.Calendar quartzCal);
+        // kieSession.getCalendars().set( "weekday", weekDayCal );
+
+        kieSession.getCalendars().set("weekends", new Calendar() {
+            @Override
+            public boolean isTimeIncluded(long timestamp) {
+                return false;
+            }
+        });
+        kieSession.getCalendars().set("weekdays", new Calendar() {
+            @Override
+            public boolean isTimeIncluded(long timestamp) {
+                return true;
+            }
+        });
+
+        DroolsOrder order = new DroolsOrder(123, "Card", 12000);
+
+        kieSession.insert(order);
+        kieSession.fireAllRules();
+
+        assertEquals(Integer.valueOf(35), order.getDiscount());
     }
 }

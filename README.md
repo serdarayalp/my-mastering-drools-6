@@ -81,8 +81,76 @@ agenda-group "NAME_OF_GROUP"
 Grouping for rules. When a rule is fired, it can also define the agenda  group that is going to be activated through the implicit global variable called **kcontext**
 
 ```text
+ruleflow-group
+```
+There is a tool for Business Process Management (BPM) called jBPM, which uses
+Drools as its base API and rule engine. It allows the end users to define diagrams to
+show the sequence of steps in a process. Some of these steps can be rule executions
+and to determine the rules that should fire at that particular point, they use a
+common attribute between the rule step in the process and the rules that are going to
+be invoked: the **ruleflow-group** rule attribute.
+
+```text
+activation-group
+```
+Groupings are used to split rules in groups; however, sometimes, we need these
+groups to have an even more specific behavior. For example, we might define that a
+specific group of rules should be mutually exclusive. To define such behavior, Drools
+defines a rule attribute called activation-group, which defines that only one rule
+should fire in that group. If the data that we feed the KieSession matches five rules in
+the same activation group, the first one to fire will cancel the other four rules.
+
+```text
 ...
 then
     kcontext.getKieRuntime().getAgenda().getAgendaGroup("MAIN").setFocus();
 ```
+when a rule is fired, it can also define the agenda group that is going to be activated through the implicit global variable called kcontext.
 
+```text
+date-effective "01-Jan-2015"
+date-expires "31-Dec-2020"
+```
+date-effective and date-expires, determine the start and end date for a specific rule to be enabled. The **dd-mmm-yyyy** date format is supported by default. You can customize this by providing an alternative date format mask as a drools.dateformat system  property.
+
+```text
+calendars "weekdays"
+timer (int:0 1h)
+
+OR
+
+calendars "weekends"
+timer (cron:0 0 0/8 * * ?)
+
+
+..............
+..............
+// Calendar weekDayCal = QuartzHelper.quartzCalendarAdapter(org.quartz.Calendar quartzCal);
+// kieSession.getCalendars().set( "weekday", weekDayCal );
+
+kieSession.getCalendars().set("weekends", new Calendar() {
+    @Override
+    public boolean isTimeIncluded(long timestamp) {
+        return false;
+    }
+});
+kieSession.getCalendars().set("weekdays", new Calendar() {
+    @Override
+    public boolean isTimeIncluded(long timestamp) {
+        return true;
+    }
+});
+..............
+..............
+
+---------------------------------------------------------------
+
+timer ( int: <initial delay> <repeat interval>? )
+
+timer ( int: 30s )
+timer ( int: 30s 5m )
+
+timer ( cron: <cron expression> )
+timer ( cron:* 0/15 * * * ? )
+```
+Interval, indicated by **int:**, timers follow the semantics of java.util.Timer objects, with an initial delay and an **optional** repeat interval. Cron, indicated by **cron:**, timers follow standar  Unix cronexpressions.

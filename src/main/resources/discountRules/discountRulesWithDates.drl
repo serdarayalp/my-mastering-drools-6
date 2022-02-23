@@ -1,0 +1,25 @@
+import de.mydomain.drools.model.DroolsOrder;
+
+rule "Add special tax of 3%"
+    date-effective "23-Feb-2022"
+    date-expires "25-Feb-2022"
+    when
+        order:DroolsOrder();
+    then
+        order.setDiscount(35);
+        System.out.println("TAX of 3%");
+end;
+
+rule "WEEKDAY notifications of pending orders"
+    calendars "weekdays"
+    timer (int:0 1m)
+    when DroolsOrder($id: id)
+    then System.out.println("WEEKDAY: " + $id);
+end;
+
+rule "WEEKEND notifications of pending orders"
+    calendars "weekends"
+    timer (cron:0 0 0/8 * * ?)
+    when DroolsOrder($id: id)
+    then System.out.println("WEEKEND: " + $id);
+end
